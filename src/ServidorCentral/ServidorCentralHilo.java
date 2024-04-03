@@ -1,7 +1,9 @@
-package Sockets;
-
-import java.io.*;
-import java.net.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServidorCentralHilo extends Thread {
@@ -23,31 +25,32 @@ public class ServidorCentralHilo extends Thread {
             this.PUERTO_SPC = puertoSPC;
             this.historialHoroscopo = historialH;
             this.historialPronosticoClima = historialPC;
-            this.idSesion = idSesion;
+            this.idSesion = unIdSesion;
             
         try {
             this.entrada = new DataInputStream(socketCliente.getInputStream());
             this.salida = new DataOutputStream(socketCliente.getOutputStream());
         } catch (IOException ex) {
-            System.err.println("Error: "+ex.getMessage());
+            System.err.println("ServidorCentral> Error: "+ex.getMessage());
         }
     }
     
     @Override
     public void run() {
-        String consultaCliente = "";
-        String consultaHoroscopo;
-        String consultaPronosticoClima;
-        String respuestaHoroscopo;
-        String respuestaPronosticoClima;
-        String respuestaConsulta = "";
+        try {
+            String consultaCliente = "";
+            String consultaHoroscopo;
+            String consultaPronosticoClima;
+            String respuestaHoroscopo;
+            String respuestaPronosticoClima;
+            String respuestaConsulta;
         
-        while(!(consultaCliente.equalsIgnoreCase("exit"))) {
-            try {
+            while(!(consultaCliente.equalsIgnoreCase("exit"))) {
                 consultaCliente = entrada.readUTF();
+                System.out.println("ServidorCentral> Atendiendo consulta de Cliente "+idSesion);
                 
                 if (consultaCliente.isBlank() || consultaCliente.isEmpty()) 
-                    respuestaConsulta = "Error: Formato de consulta no valido.";
+                    respuestaConsulta = "ServidorCentral> Error: Formato de consulta no valido.";
                 else { 
                     if (consultaCliente.matches("[a-zA-Z]+ \\d{2}/\\d{2}/\\d{4}")) {
                         consultaHoroscopo = consultaCliente.split(" ")[0].toLowerCase();
@@ -56,7 +59,7 @@ public class ServidorCentralHilo extends Thread {
                         Socket socketClienteSH = null;
                         DataInputStream entradaSH = null;
                         DataOutputStream salidaSH;
-                        boolean flagSH = false;
+                        boolean peticionSH = false;
                         
                         if (validarConsultaHoroscopo(consultaHoroscopo)) {
                             respuestaHoroscopo = historialHoroscopo.get(consultaHoroscopo);
@@ -67,7 +70,7 @@ public class ServidorCentralHilo extends Thread {
                                 salidaSH = new DataOutputStream(socketClienteSH.getOutputStream());
                                 
                                 salidaSH.writeUTF(consultaHoroscopo);
-                                flagSH = true;
+                                peticionSH = true;
                             } 
                         }
                         else 
@@ -76,7 +79,7 @@ public class ServidorCentralHilo extends Thread {
                         Socket socketClienteSPC = null;
                         DataInputStream entradaSPC = null;
                         DataOutputStream salidaSPC;
-                        boolean flagSPC = false;
+                        boolean peticionSPC = false;
                         
                         if (validarConsultaPronosticoClima(consultaPronosticoClima)) {
                             respuestaPronosticoClima = historialPronosticoClima.get(consultaPronosticoClima);
@@ -87,49 +90,68 @@ public class ServidorCentralHilo extends Thread {
                                 salidaSPC = new DataOutputStream(socketClienteSPC.getOutputStream());
                                 
                                 salidaSPC.writeUTF(consultaPronosticoClima);
-                                flagSPC = true;
+                                peticionSPC = true;
                             }
                         }
                         else 
                             respuestaPronosticoClima = "Fecha no valida";
                         
-                        if (flagSH) {
+                        if (peticionSH) {
                             respuestaHoroscopo = entradaSH.readUTF();
                             historialHoroscopo.put(consultaHoroscopo, respuestaHoroscopo);
                             socketClienteSH.close();
                         }
                         
-                        if (flagSPC) {
+                        if (peticionSPC) {
                             respuestaPronosticoClima = entradaSPC.readUTF();
                             historialPronosticoClima.put(consultaPronosticoClima, respuestaPronosticoClima);
                             socketClienteSPC.close();
                         }
                         
-                        respuestaConsulta = "Predicciones: [Horoscopo: "+respuestaHoroscopo+"]\n [Pronostico Clima: "+respuestaPronosticoClima+"]";
+                        respuestaConsulta = "Horoscopo: "+respuestaHoroscopo+"\n"
+                                          + "Pronostico Clima: "+respuestaPronosticoClima;
                     }
                     else {
-                        if (consultaCliente.equalsIgnoreCase("exit"))
-                            respuestaConsulta = "Adios Cliente "+idSesion;
+                        if (consultaCliente.equalsIgnoreCase("exit")) 
+                            respuestaConsulta = "ServidorCentral> Adios Cliente "+idSesion;
                         else
-                            respuestaConsulta = "Error: Formato de consulta no valido.";
+                            respuestaConsulta = "ServidorCentral> Error: Formato de consulta no valido.";
                     }
                 }
                 salida.writeUTF(respuestaConsulta);
-            } catch (IOException ex) {
-                System.err.println("Error: "+ex.getMessage());
+                System.out.println("ServidorCentral> Respuesta enviada a Cliente "+idSesion);
             }
+        socketCliente.close();
+         System.out.println("ServidorCentral> Finalizando conexion con Cliente "+idSesion);
+        } catch (IOException ex) {
+            System.err.println("ServidorCentral> Error: "+ex.getMessage());
         }
     }
     
     private boolean validarConsultaHoroscopo(String signoHoroscopo) {
+        String[] signos = {"aries", "tauro", "geminis", "cancer", "leo", "virgo", "libra", "escorpio", 
+                           "sagitario", "capricornio", "acuario", "piscis"};
         boolean esSignoValido = false;
         
+        int i = 0;
+        while ((i < signos.length) && (!esSignoValido)) {
+            if (signos[i].equals(signoHoroscopo)) 
+                esSignoValido = true;
+            i++;
+        }
         return esSignoValido;
     }
     
     private boolean validarConsultaPronosticoClima(String fechaPronosticoClima) {
-        boolean esFechaValida = false;
+        boolean esFechaValida = true;
+        SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy");
+        formatoFecha.setLenient(false);
         
+        try {
+            formatoFecha.parse(fechaPronosticoClima);
+        } catch (ParseException e) {
+            esFechaValida = false;
+        }
         return esFechaValida;
     }
 }
