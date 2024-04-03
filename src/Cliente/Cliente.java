@@ -1,14 +1,17 @@
+package Cliente;
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
 public class Cliente {
     
-    private static final String IP = "localhost";
-    private static final int PUERTO_SC = 5000;
+    private static String IP;
+    private static int PUERTO_SC;
     private static Socket socketCliente;
     private static DataInputStream entrada;
     private static DataOutputStream salida;
@@ -16,6 +19,13 @@ public class Cliente {
     
     public static void main(String[] args) {
         try {
+
+            String configFilePath = "config_cliente.txt";
+            BufferedReader configReader = new BufferedReader(new FileReader(configFilePath));
+            PUERTO_SC = Integer.parseInt(configReader.readLine());
+            IP = configReader.readLine();
+            configReader.close();
+
             socketCliente = new Socket(IP, PUERTO_SC);
             entrada = new DataInputStream(socketCliente.getInputStream());
             salida = new DataOutputStream(socketCliente.getOutputStream());

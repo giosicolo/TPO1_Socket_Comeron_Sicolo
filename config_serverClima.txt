@@ -1,0 +1,6 @@
+9090
+localhost
+
+# Configuración de los puertos para que se conecte el cliente (Servidor Central es cliente del Servidor clima)
+# Linea 1 - Puerto del servidor del clima
+# Linea 2 - Dirección IP al que conectarse 

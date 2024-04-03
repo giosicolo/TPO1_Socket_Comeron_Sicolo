@@ -1,3 +1,7 @@
+package ServidorCentral;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -5,16 +9,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ServidorCentral {
     
-    private static final String IP = "localhost";
-    private static final int PUERTO_SC = 5000;
-    private static final int PUERTO_SH = 6000;
-    private static final int PUERTO_SPC = 7000;
+    private static  String IP;
+    private static  int PUERTO_SC ;
+    private static  int PUERTO_SH ;
+    private static  int PUERTO_SPC ;
     private static ConcurrentHashMap<String, String> historialHoroscopo;
     private static ConcurrentHashMap<String, String> historialPronosticoClima;
     
     public static void main(String[] args) {
-        ServerSocket socketServerCentral;
+        ServerSocket socketServerCentral; 
         try {
+            String configFilePath = "config_server.txt";
+            BufferedReader configReader = new BufferedReader(new FileReader(configFilePath));    
+            PUERTO_SC = Integer.parseInt(configReader.readLine());
+            PUERTO_SPC = Integer.parseInt(configReader.readLine());
+            PUERTO_SH = Integer.parseInt(configReader.readLine());
+            IP = configReader.readLine();
+            configReader.close();
+            
             System.out.println("ServidorCentral> Iniciando ServidorCentral...");
             socketServerCentral = new ServerSocket(PUERTO_SC);
 

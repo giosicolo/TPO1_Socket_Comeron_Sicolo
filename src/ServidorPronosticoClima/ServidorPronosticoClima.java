@@ -1,14 +1,24 @@
+package ServidorPronosticoClima;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServidorPronosticoClima {
     
-    private static final int PUERTO_SPC = 7000;
+    private static int PUERTO_SPC;
     
     public static void main(String[] args) {
     ServerSocket socketServerPronosticoClima;
         try {
+            
+            String configFilePath = "config_serverClima.txt";
+            BufferedReader configReader = new BufferedReader(new FileReader(configFilePath));
+            PUERTO_SPC = Integer.parseInt(configReader.readLine());
+            configReader.close();
+            
             System.out.println("ServidorPronosticoClima> Iniciando ServidorPronosticoClima...");
             socketServerPronosticoClima = new ServerSocket(PUERTO_SPC);
             int idSesion = 1;

@@ -1,0 +1,6 @@
+9089
+localhost
+
+# Configuración de los puertos para que se conecte el cliente
+# Linea 1 - Puerto central
+# Linea 2 - Dirección IP del servidor cental al que conectarse 
