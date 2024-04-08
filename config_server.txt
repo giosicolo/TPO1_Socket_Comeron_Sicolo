@@ -2,9 +2,11 @@
 9090
 9091
 localhost
+localhost
 
 # Configuración de los puertos de los servidores
-# Linea 1 - Puerto central
-# Linea 2 - Puerto del servidor de clima
-# Linea 3 - Puerto del servidor de horóscopo
-# Linea 4 - Dirección IP del servidor
+# Linea 1 - Puerto servidor central
+# Linea 2 - Puerto del servidor de horóscopo
+# Linea 3 - Puerto del servidor de clima
+# Linea 4 - Dirección IP de servidor de horoscopo
+# Linea 5 - Dirección IP de servidor de clima

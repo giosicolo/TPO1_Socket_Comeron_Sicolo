@@ -13,21 +13,25 @@ public class ServidorHoroscopo {
     public static void main(String[] args) {
         ServerSocket socketServerHoroscopo;
         try {
-             String configFilePath = "config_serverHoroscopo.txt";
-             BufferedReader configReader = new BufferedReader(new FileReader(configFilePath));
-             PUERTO_SH = Integer.parseInt(configReader.readLine());
-             configReader.close();
+            // Se leen desde archivo los datos del puerto SH
+            final String CONFIG_FILE_PATH = "config_serverHoroscopo.txt";
+            BufferedReader configReader = new BufferedReader(new FileReader(CONFIG_FILE_PATH));
+            PUERTO_SH = Integer.parseInt(configReader.readLine());
+            configReader.close();
             
+            // Con el puerto propio, se instancia el socket del SH
             System.out.println("ServidorHoroscopo> Iniciando ServidorHoroscopo...");
             socketServerHoroscopo = new ServerSocket(PUERTO_SH);
             int idSesion = 1;
             System.out.println("ServidorHoroscopo> ServidorHoroscopo iniciado.");
             
-            while(true) {
+            // SH esta en permanente escucha de solicitudes. Ante un arribo, lanza un thread que llevara a cabo la tarea
+            while (true) {
                 Socket socketCliente;
                 System.out.println("ServidorHoroscopo> Esperando solicitudes de sesion...");
-                socketCliente = socketServerHoroscopo.accept();
+                socketCliente = socketServerHoroscopo.accept(); // Se bloquea hasta nuevo arribo
                 System.out.println("ServidorHoroscopo> Nueva solicitud de sesion recibida.");
+                // Lanza el thread, con los datos necesarios para que el mismo lleve adelante el trabajo
                 new ServidorHoroscopoHilo(socketCliente, idSesion).start();
                 idSesion++;
             }

@@ -1,6 +1,4 @@
-9091
-localhost
+9090
 
 # Configuración de los puertos para que se conecte el cliente (Servidor Central es cliente del Servidor horóscopo)
 # Linea 1 - Puerto del servidor del horóscopo
-# Linea 2 - Dirección IP al que conectarse 

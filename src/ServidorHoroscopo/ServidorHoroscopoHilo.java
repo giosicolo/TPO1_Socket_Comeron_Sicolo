@@ -18,6 +18,8 @@ public class ServidorHoroscopoHilo extends Thread {
     public ServidorHoroscopoHilo(Socket sc, int unIdSesion) {
         this.socketCliente = sc;
         this.idSesion = unIdSesion;
+
+        // Buffers que leen y escriben desde/en el socket creado por el Cliente
         try {
             this.entrada = new DataInputStream(socketCliente.getInputStream());
             this.salida = new DataOutputStream(socketCliente.getOutputStream());
@@ -26,21 +28,23 @@ public class ServidorHoroscopoHilo extends Thread {
         }
     }
     
+    // Comportamiento que realiza todo thread de tipo Servidor Horoscopo
     @Override
     public void run() {
         try {
-            String signo = entrada.readUTF();
+            String signo = entrada.readUTF(); // Permanece bloqueado hasta poder leer el signo desde el buffer
             System.out.println("ServidorHoroscopo> Atendiendo consulta de Cliente "+idSesion);
-            String respuestaHoroscopo = prediccionHoroscopo(signo);
-            salida.writeUTF(respuestaHoroscopo);
+            String respuestaHoroscopo = prediccionHoroscopo(signo); // Genera la prediccion del horoscopo para ese signo
+            salida.writeUTF(respuestaHoroscopo); // Envia la respuesta al SC
             System.out.println("ServidorHoroscopo> Respuesta enviada a Cliente "+idSesion);
-            socketCliente.close();
+            socketCliente.close(); // Por ultimo, cierra el socket y el hilo termina su ciclo de vida
             System.out.println("ServidorHoroscopo> Finalizando conexion con Cliente "+idSesion);
         } catch (IOException ex) {
             System.err.println("ServidorHoroscopo> Error: "+ex.getMessage());
         }
     }
     
+    // Metodo que, a partir frases de horoscopo, retorna una prediccion aleatoria para un signo 
     private String prediccionHoroscopo(String signo) {
         String[] predicciones = {
             "Vas a superar esto. No durará para siempre. Lo que vives en este momento es temporal. El dolor que sientes, en unos meses se convertirá solo en un recuerdo",
